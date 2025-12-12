@@ -20,63 +20,91 @@ export const useAlignmentGuides = () => {
   const tolerance = 5
 
   onNodeDrag((event: NodeDragEvent) => {
+    // Reset all existing alignment guide lines at the start of a drag
     alignmentLines.value = []
 
+    // Reference to the node currently being dragged
     const dragged = event.node
     const draggedSize = dragged.dimensions
 
+    // Iterate over all other nodes in the canvas to check for alignment
     for (const target of nodes.value) {
-      if (target.id === dragged.id) continue
+      if (target.id === dragged.id) continue // Skip the dragged node itself
 
       const targetPos = target.position
       const targetSize = target.dimensions
 
       // ====== Vertical (X-axis) Alignment Detection ======
+      // Gather the left/right edges of dragged and target nodes
       const draggedEdgesX = [dragged.position.x, dragged.position.x + draggedSize.width]
       const targetEdgesX = [targetPos.x, targetPos.x + targetSize.width]
 
-      // Compare left/right edges
+      // Check for near-alignment of left/right edges within tolerance
       for (const dx of draggedEdgesX) {
         for (const tx of targetEdgesX) {
           if (Math.abs(dx - tx) <= tolerance) {
+            // Compute vertical span covering both nodes
             const span = getVerticalSpan(dragged.position, draggedSize, targetPos, targetSize)
+            // Create a vertical guide line at the aligned X position
             alignmentLines.value.push(createVerticalLine(tx, span, viewport.value))
           }
         }
       }
 
-      // Center-to-center alignment
+      // Check for center-to-center vertical alignment
       const draggedCenterX = dragged.position.x + draggedSize.width / 2
       const targetCenterX = targetPos.x + targetSize.width / 2
-
       if (Math.abs(draggedCenterX - targetCenterX) <= tolerance) {
         const span = getVerticalSpan(dragged.position, draggedSize, targetPos, targetSize)
         alignmentLines.value.push(createVerticalLine(targetCenterX, span, viewport.value))
       }
 
       // ====== Horizontal (Y-axis) Alignment Detection ======
+      // Gather the top/bottom edges of dragged and target nodes
       const draggedEdgesY = [dragged.position.y, dragged.position.y + draggedSize.height]
       const targetEdgesY = [targetPos.y, targetPos.y + targetSize.height]
 
-      // Compare top/bottom edges
+      // Check for near-alignment of top/bottom edges within tolerance
       for (const dy of draggedEdgesY) {
         for (const ty of targetEdgesY) {
           if (Math.abs(dy - ty) <= tolerance) {
+            // Compute horizontal span covering both nodes
             const span = getHorizontalSpan(dragged.position, draggedSize, targetPos, targetSize)
+            // Create a horizontal guide line at the aligned Y position
             alignmentLines.value.push(createHorizontalLine(ty, span, viewport.value))
           }
         }
       }
 
-      // Center-to-center alignment
+      // Check for center-to-center horizontal alignment
       const draggedCenterY = dragged.position.y + draggedSize.height / 2
       const targetCenterY = targetPos.y + targetSize.height / 2
-
       if (Math.abs(draggedCenterY - targetCenterY) <= tolerance) {
         const span = getHorizontalSpan(dragged.position, draggedSize, targetPos, targetSize)
         alignmentLines.value.push(createHorizontalLine(targetCenterY, span, viewport.value))
       }
     }
+
+    // ====== Canvas Center Lines ======
+    // Compute the canvas coordinates for the center of the viewport
+    const canvasCenterX =
+      -viewport.value.x / viewport.value.zoom + window.innerWidth / (2 * viewport.value.zoom)
+    const canvasCenterY =
+      -viewport.value.y / viewport.value.zoom + window.innerHeight / (2 * viewport.value.zoom)
+
+    // Define full viewport spans for the guide lines
+    const verticalSpan = {
+      startY: viewport.value.y / viewport.value.zoom,
+      endY: (viewport.value.y + window.innerHeight) / viewport.value.zoom
+    }
+    const horizontalSpan = {
+      startX: viewport.value.x / viewport.value.zoom,
+      endX: (viewport.value.x + window.innerWidth) / viewport.value.zoom
+    }
+
+    // Add center lines to alignment lines array
+    alignmentLines.value.push(createVerticalLine(canvasCenterX, verticalSpan, viewport.value))
+    alignmentLines.value.push(createHorizontalLine(canvasCenterY, horizontalSpan, viewport.value))
   })
 
   // Remove all guides when drag stops
