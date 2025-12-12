@@ -117,7 +117,7 @@ const sampleEdges = ref([
   }
 ])
 
-const { onNodeDragStop, nodes } = useVueFlow()
+const { onNodeDragStop, nodes, removeSelectedNodes } = useVueFlow()
 const { alignmentLines } = useAlignmentGuides()
 
 const updateNodePosition = (id: string, pos: XYPosition) => {
@@ -129,6 +129,7 @@ const updateNodePosition = (id: string, pos: XYPosition) => {
 
 onNodeDragStop((event: NodeDragEvent) => {
   updateNodePosition(event.node.id, event.node.position)
+  removeSelectedNodes(event.nodes)
 })
 </script>
 

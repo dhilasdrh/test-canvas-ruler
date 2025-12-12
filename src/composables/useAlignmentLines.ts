@@ -84,27 +84,6 @@ export const useAlignmentGuides = () => {
         alignmentLines.value.push(createHorizontalLine(targetCenterY, span, viewport.value))
       }
     }
-
-    // ====== Canvas Center Lines ======
-    // Compute the canvas coordinates for the center of the viewport
-    const canvasCenterX =
-      -viewport.value.x / viewport.value.zoom + window.innerWidth / (2 * viewport.value.zoom)
-    const canvasCenterY =
-      -viewport.value.y / viewport.value.zoom + window.innerHeight / (2 * viewport.value.zoom)
-
-    // Define full viewport spans for the guide lines
-    const verticalSpan = {
-      startY: viewport.value.y / viewport.value.zoom,
-      endY: (viewport.value.y + window.innerHeight) / viewport.value.zoom
-    }
-    const horizontalSpan = {
-      startX: viewport.value.x / viewport.value.zoom,
-      endX: (viewport.value.x + window.innerWidth) / viewport.value.zoom
-    }
-
-    // Add center lines to alignment lines array
-    alignmentLines.value.push(createVerticalLine(canvasCenterX, verticalSpan, viewport.value))
-    alignmentLines.value.push(createHorizontalLine(canvasCenterY, horizontalSpan, viewport.value))
   })
 
   // Remove all guides when drag stops
