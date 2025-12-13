@@ -4,10 +4,14 @@ This is example code that adds alignment guide lines (similar to Figma / Miro / 
 
 How it works:
 
-- When a node is dragged, the code iterates over all other nodes on the canvas to check for potential alignments.
-- **Vertical alignment (X-axis)**: it compares the left and right edges of the dragged node against the edges of each target node. If the edges are within a small tolerance (e.g., 5px), it calculates a vertical span covering both nodes and draws a vertical guide line. It also checks the center X of both nodes and draws a line if they are aligned.
-- **Horizontal alignment (Y-axis)**: similarly, it compares the top and bottom edges and the center Y of the nodes, creating horizontal guide lines when edges or centers are close enough.
-- All positions are converted from canvas coordinates to screen coordinates using the current viewport zoom and offset, so the guide lines appear correctly on the screen.
+- It will listens to node drag events and compares the dragged node with all other nodes on the canvas to check for potential alignments.
+- Checks alignment across four cases:
+   - Vertical edges (left & right)
+   - Horizontal edges (top & bottom)
+   - Vertical center (center X)
+   - Horizontal center (center Y)
+- When two positions are aligned within a small tolerance (e.g. 5px), a guide line is generated to visually indicate the alignment between the nodes.
+- All calculations are done in canvas coordinates and then converted into screen coordinates using the current viewport zoom and offset. This ensures the guide lines stay accurate while zooming and panning
 
 https://github.com/user-attachments/assets/1848cdd7-eeac-4431-972a-de5a117206da
 
@@ -18,25 +22,22 @@ https://github.com/user-attachments/assets/1848cdd7-eeac-4431-972a-de5a117206da
 ### [Utils](./src/utils/alignmentUtils.ts)
 
 
-Contains all low-level utilities for:
+Contains all low-level math and coordinate logic
 
-- Calculating ranges between nodes
-- Converting canvas coordinates into screen positions for guide lines
+- Calculates shared ranges between two nodes (horizontal or vertical).
+- Converts canvas coordinates into screen coordinates using the current viewport.
+- Returns simple objects that describe how each guide line should be rendered.
 
 
 ### [Composables](./src/composables/useAlignmentLines.ts)
 
 Main composable generating lines on drag
 
-- Listens to Vue Flow's `onNodeDrag`
+- Listens `onNodeDrag()` event
 - Compares dragged node against all other nodes
-- Detects alignment of:
-  - left/right edges
-  - top/bottom edges
-  - center X
-  - center Y
-- Creates guide line objects using utils
-- Removes all guides on drag stop
+- It compares node edges (top, bottom, left, right) and node centers (X and Y), and treats them as aligned when the distance is within a small tolerance.
+- When an alignment is detected, it creates guide lines using the utility functions.
+- All guide lines are cleared when the drag ends.
 
 ### [Components](./src/components/CanvasWrapper.vue)
 
